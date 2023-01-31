@@ -39,6 +39,12 @@ var templateFileSystem embed.FS
 // contains .partial.tmpl, .base.tmpl, page.tmpl files
 var tempDirectory string = "templates"
 
+// default template extension format
+// following course uses .gohtml
+// this project stays with .tmpl
+// may be changed on require
+var tempExt = "tmpl"
+
 // add DefaultTemplateData populates templateData struct
 // with default data structures and/or values in tempalate pages
 func (a *app) addDefaultTemplateData(td *templateData, r *http.Request) *templateData {
@@ -50,7 +56,7 @@ func (a *app) renderTemplate(w http.ResponseWriter, r *http.Request, page string
 	var err error
 
 	// template to render from templates directory
-	toRender := fmt.Sprintf("%s/%s.page.tmpl", tempDirectory, page)
+	toRender := fmt.Sprintf("%s/%s.page.%s", tempDirectory, page, tempExt)
 
 	// checks if app already has template to render
 	// in cached templateCache map
@@ -98,10 +104,10 @@ func (a *app) parseTemplate(tmplToTender, page string, partials []string) (*temp
 	var err error
 
 	for i, p := range partials {
-		partials[i] = fmt.Sprintf("%s/%s.partial.tmpl", tempDirectory, p)
+		partials[i] = fmt.Sprintf("%s/%s.partial.%s", tempDirectory, p, tempExt)
 	}
 
-	t = template.New(fmt.Sprintf("%s.page.tmpl", page)).Funcs(functions)
+	t = template.New(fmt.Sprintf("%s.page.%s", page, tempExt)).Funcs(functions)
 
 	if len(partials) > 0 {
 		t, err = t.ParseFS(templateFileSystem, strings.Join(partials, ","))
@@ -109,7 +115,7 @@ func (a *app) parseTemplate(tmplToTender, page string, partials []string) (*temp
 
 	t, err = t.ParseFS(
 		templateFileSystem,
-		fmt.Sprintf("%s/base.layout.tmpl", tempDirectory),
+		fmt.Sprintf("%s/base.layout.%s", tempDirectory, tempExt),
 		tmplToTender,
 	)
 
