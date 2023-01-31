@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 )
 
 // templateData holds default data structures
@@ -100,15 +101,18 @@ func (a *app) parseTemplate(tmplToTender, page string, partials []string) (*temp
 		partials[i] = fmt.Sprintf("%s/%s.partial.tmpl", tempDirectory, p)
 	}
 
-	t, err = template.
-		New(fmt.Sprintf("%s.page.tmpl", page)).
-		Funcs(functions).
-		ParseFS(
-			templateFileSystem,
-			fmt.Sprintf("%s/base.layout.tmpl", tempDirectory),
-			// strings.Join(partials, ","),
-			tmplToTender,
-		)
+	t = template.New(fmt.Sprintf("%s.page.tmpl", page)).Funcs(functions)
+
+	if len(partials) > 0 {
+		t, err = t.ParseFS(templateFileSystem, strings.Join(partials, ","))
+	}
+
+	t, err = t.ParseFS(
+		templateFileSystem,
+		fmt.Sprintf("%s/base.layout.tmpl", tempDirectory),
+		tmplToTender,
+	)
+
 	if err != nil {
 		a.errorLog.Println("unable to create new template", err)
 
