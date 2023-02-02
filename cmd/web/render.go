@@ -103,13 +103,13 @@ func (a *app) parseTemplate(tmplToTender, page string, partials []string) (*temp
 	var t *template.Template
 	var err error
 
-	for i, p := range partials {
-		partials[i] = fmt.Sprintf("%s/%s.partial.%s", tempDirectory, p, tempExt)
-	}
-
 	t = template.New(fmt.Sprintf("%s.page.%s", page, tempExt)).Funcs(functions)
 
 	if len(partials) > 0 {
+		for i, p := range partials {
+			partials[i] = fmt.Sprintf("%s/%s.partial.%s", tempDirectory, p, tempExt)
+		}
+
 		t, err = t.ParseFS(templateFileSystem, strings.Join(partials, ","))
 	}
 
