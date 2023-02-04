@@ -2,12 +2,11 @@
 
 # Docker usage:
 # docker run -it --rm \
-#   -w "<PROJECT>" \
-#   -e "air_wd=<PROJECT>" \
-#   -v $(pwd):<PROJECT> \
-#   -p <PORT>:<APP SERVER PORT> \
-#   cosmtrek/air -c <CONF>
-
+#   -w "/go/src/github.com/mcsymiv/go-stripe" \
+#   -e "air_wd=/go/src/github.com/mcsymiv/go-stripe" \
+#   -v $(pwd):/go/src/github.com/mcsymiv/go-stripe \
+#   -p 8082:8082 \
+#   cosmtrek/air -c .air.toml
 
 # Working directory
 # . or absolute path, please note that the directories following must be under root.
