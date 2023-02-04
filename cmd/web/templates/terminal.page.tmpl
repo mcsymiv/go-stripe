@@ -66,11 +66,11 @@
 
                     <!-- car number input will build by stripe -->
                     <div class="mt-3">
-                        <label class="card-element"
-                               for="form-label">Credit Card
+                            <label class="card-element form-label"
+                               for="card_element">Credit Card
                         </label>
 
-                        <div id="card-element"
+                        <div id="card_element"
                              class="form-control"></div>
 
                         <div class="alert-danger text-center" id="card-errors" role="alert"></div>
@@ -79,7 +79,7 @@
                     </div>
 
                     <a href="javascript:void(0)"
-                       class="btn btn-outline-primary"
+                       class="mt-3 btn btn-outline-primary"
                        onclick="validate()"
                        id="pay_button">Charge Card
                     </a>
@@ -98,8 +98,41 @@
 {{ define "js" }}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        let card;
+        let stripe;
+
+        stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
+
         function validate() {
                     // validates form on submit
-                }
+        }
+
+        (function() {
+                    const elements = stripe.elements();
+                    const style = {
+                                base: {
+                                            fontSize: "16px",
+                                            lineHight: "24px",
+                                }
+                    };
+
+                    card = elements.create("card", {
+                                style: style,
+                                hidePostalCode: true,
+                    });
+
+                    card.mount("#card_element");
+
+                    card.addEventListener("change", function(e) {
+                                var err = document.getElementById("card-errors");
+                                if (e.error) {
+                                            err.classList.remove("d-none");
+                                            err.textContent = e.error.message;
+                                } else {
+                                            err.classList.add("d-none");
+                                            err.textContent = "";
+                                }
+                    });
+        })();
     </script>
 {{ end }}
