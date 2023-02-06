@@ -119,6 +119,11 @@
 		const payButton = document.getElementById("pay_button");
 		const proccesingMessage = document.getElementById("proccessing_payment");
 
+		function hidePayButton() {
+				payButton.classList.add("d-none");
+				proccessingMessage.classList.remove("d-none");
+		}
+
         function validate() {
 				let form = document.getElementById("charge_form");
 				if (form.checkValidity()) {
@@ -129,6 +134,7 @@
 				}
 
 				form.classList.add("was-validated");
+				hidePayButton();
         }
 
         (function() {
