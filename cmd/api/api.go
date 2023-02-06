@@ -6,14 +6,14 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"text/template"
 	"time"
 )
+
+const version = "1.0.0"
 
 type config struct {
 	port int
 	env  string
-	api  string
 	db   struct {
 		dsn string
 	}
@@ -24,11 +24,10 @@ type config struct {
 }
 
 type app struct {
-	config        config
-	infoLog       *log.Logger
-	errorLog      *log.Logger
-	templageCache map[string]*template.Template
-	version       string
+	config   config
+	infoLog  *log.Logger
+	errorLog *log.Logger
+	version  string
 }
 
 func (a *app) serve() error {
@@ -64,6 +63,7 @@ func main() {
 		config:   c,
 		infoLog:  infoLog,
 		errorLog: errorLog,
+		version:  version,
 	}
 
 	err := app.serve()
