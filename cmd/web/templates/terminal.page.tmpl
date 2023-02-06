@@ -120,6 +120,15 @@
 		const proccesingMessage = document.getElementById("proccessing_payment");
 
         function validate() {
+				let form = document.getElementById("charge_form");
+				if (form.checkValidity()) {
+						this.event.preventDefault();
+						this.event.stopPropagation();
+						form.classList.add("was-validated");
+						return
+				}
+
+				form.classList.add("was-validated");
         }
 
         (function() {
