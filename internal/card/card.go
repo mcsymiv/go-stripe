@@ -1,7 +1,11 @@
 package card
 
+import (
+	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/paymentintent"
+)
+
 type Card struct {
-	Secret   string
 	Key      string
 	Currency string
 }
@@ -26,4 +30,32 @@ type Transaction struct {
 	// ReturnCode
 	// holds transaction bank return code from Stripe API
 	ReturnCode string
+}
+
+// CreatePaymentIntent performs charge logic
+// may return error code message from Stripe API
+func (c *Card) CreatePaymentIntent(currency string, amount int) (*stripe.PaymentIntent, string, error) {
+	// msg holds error code if any
+	// specified in stripe api
+	// https://stripe.com/docs/error-codes
+	var msg string
+
+	stripe.Key = c.Key
+
+	// create payment intent
+	params := &stripe.PaymentIntentParams{
+		Amount:   stripe.Int64(int64(amount)),
+		Currency: stripe.String(currency),
+	}
+
+	pi, err := paymentintent.New(params)
+	if err != nil {
+		if stripeErr, ok := err.(*stripe.Error); ok {
+			msg = string(stripeErr.Code)
+
+			return nil, msg, err
+		}
+	}
+
+	return pi, msg, nil
 }
