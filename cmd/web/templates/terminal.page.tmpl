@@ -17,6 +17,10 @@
                     Terminal
                 </h1>
 
+				<div class="alert alert-danger text-center d-none"
+					 id="card_messages">
+				</div>
+
                 <form action="/payment-succeeded"
                       method="post"
                       name="charge_form"
@@ -84,6 +88,16 @@
                        id="pay_button">Charge Card
                     </a>
 
+					<div id="proccesing_payment"
+						 class="text-center d-none">
+							<div class="spinner-border text-primary"
+								 role="status">
+									<span class="visually-hidden">
+											Loading...
+									</span>
+							</div>
+					</div>
+
                 </form>
 
             </div> <!-- end of center column -->
@@ -99,12 +113,13 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         let card;
-        let stripe;
+        let stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
 
-        stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
+		const cardMessages = document.getElementById("card_messages");
+		const payButton = document.getElementById("pay_button");
+		const proccesingMessage = document.getElementById("proccessing_payment");
 
         function validate() {
-                    // validates form on submit
         }
 
         (function() {
