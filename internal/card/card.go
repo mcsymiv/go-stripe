@@ -6,6 +6,10 @@ import (
 )
 
 type Card struct {
+	// holds ref to Stripe sk_ value
+	Secret string
+
+	// holds ref to Stripe pk_ value
 	Key      string
 	Currency string
 }
@@ -40,7 +44,7 @@ func (c *Card) CreatePaymentIntent(currency string, amount int) (*stripe.Payment
 	// https://stripe.com/docs/error-codes
 	var msg string
 
-	stripe.Key = c.Key
+	stripe.Key = c.Secret
 
 	// create payment intent
 	params := &stripe.PaymentIntentParams{
