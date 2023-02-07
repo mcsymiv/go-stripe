@@ -15,8 +15,7 @@ tmp_dir = "tmp"
 
 [build]
 # Just plain old shell command. You could use `make` as well.
-# cmd = "go build -o ./tmp/main ./cmd/web/"
-cmd = "make start"
+cmd = "go build -o ./tmp/main ./cmd/web/"
 
 # Binary file yields from `cmd`.
 bin = "tmp main"
