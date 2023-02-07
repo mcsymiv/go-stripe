@@ -16,3 +16,6 @@
 
 # Temp .air build
 /tmp/
+
+# Application binaries
+dist/*
