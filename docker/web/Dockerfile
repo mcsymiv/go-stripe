@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.19-buster AS build
 
 WORKDIR /app
 
@@ -10,6 +10,14 @@ COPY . .
 
 RUN go build -o /go-stripe-web ./cmd/web/*.go
 
-EXPOSE 8082
+FROM gcr.io/distroless/base-debian10
 
-CMD ["/go-stripe-web"]
+WORKDIR /
+
+COPY --from=build /go-stripe-web /go-stripe-web
+
+EXPOSE 8083
+
+USER nonroot:nonroot
+
+ENTRYPOINT ["/go-stripe-web"]
