@@ -5,9 +5,11 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/mcsymiv/go-stripe/internal/api/config"
+	"github.com/mcsymiv/go-stripe/internal/api/handlers"
 )
 
-func (a *app) routes() http.Handler {
+func routes(a *config.Application) http.Handler {
 	mux := chi.NewMux()
 
 	// CORS chi middleware
@@ -21,7 +23,7 @@ func (a *app) routes() http.Handler {
 		MaxAge: 300,
 	}))
 
-	mux.Get("/api/payment-intent", a.GetPaymentIntent)
+	mux.Get("/api/payment-intent", handlers.Repo.GetPaymentIntent)
 
 	return mux
 }
