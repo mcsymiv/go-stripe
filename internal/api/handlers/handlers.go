@@ -1,9 +1,27 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/mcsymiv/go-stripe/internal/api/config"
 )
+
+var Repo *Repository
+
+type Repository struct {
+	App *config.Application
+}
+
+func NewRepository(a *config.Application) *Repository {
+	return &Repository{
+		App: a,
+	}
+}
+
+func NewHandlers(r *Repository) {
+	Repo = r
+}
 
 // FE client stripe payload sent
 type stripePayload struct {
@@ -19,14 +37,14 @@ type responce struct {
 	Id      string `json:"id"`
 }
 
-func (a *app) GetPaymentIntent(w http.ResponseWriter, r *http.Request) {
+func (repo *Repository) GetPaymentIntent(w http.ResponseWriter, r *http.Request) {
 	jres := responce{
 		Ok: true,
 	}
 
 	jout, err := json.MarshalIndent(jres, "", "\t")
 	if err != nil {
-		a.errorLog.Println("unable to marshall json", err)
+		repo.App.ErrorLog.Println("unable to marshall json", err)
 
 		return
 	}

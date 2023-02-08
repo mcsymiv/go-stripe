@@ -7,68 +7,50 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/mcsymiv/go-stripe/internal/api/config"
+	"github.com/mcsymiv/go-stripe/internal/api/handlers"
 )
 
 const version = "1.0.0"
 
-type config struct {
-	port int
-	env  string
-	db   struct {
-		dsn string
-	}
-	stripe struct {
-		key    string
-		secret string
-	}
-}
+var app config.Application
 
-type app struct {
-	config   config
-	infoLog  *log.Logger
-	errorLog *log.Logger
-	version  string
-}
+func main() {
+	var c config.Config
 
-func (a *app) serve() error {
+	flag.IntVar(&c.Port, "port", 8083, "Server API port")
+	flag.StringVar(&c.Env, "env", "dev", "Application environment [ dev | prod | maintenance ]")
+
+	flag.Parse()
+
+	c.Stripe.Secret = os.Getenv("STRIPE_SECRET")
+	c.Stripe.Key = os.Getenv("STRIPE_KEY")
+
+	app := &config.Application{
+		Config:   &c,
+		InfoLog:  log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime),
+		ErrorLog: log.New(os.Stdout, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile),
+		Version:  version,
+	}
+
+	repository := handlers.NewRepository(app)
+	handlers.NewHandlers(repository)
+
 	s := &http.Server{
-		Addr:              fmt.Sprintf(":%d", a.config.port),
+		Addr:              fmt.Sprintf(":%d", c.Port),
 		IdleTimeout:       20 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		ReadHeaderTimeout: 5 * time.Second,
 		WriteTimeout:      5 * time.Second,
-		Handler:           a.routes(),
+		Handler:           routes(app),
 	}
 
-	a.infoLog.Printf("starting BE server in %s mode, on port: %d", a.config.env, a.config.port)
+	app.InfoLog.Println("starting BE server in %s mode, on port: %d", c.Env, c.Port)
 
-	return s.ListenAndServe()
-}
-
-func main() {
-	var c config
-
-	flag.IntVar(&c.port, "port", 8083, "Server API port")
-	flag.StringVar(&c.env, "env", "dev", "Application environment [ dev | prod | maintenance ]")
-
-	flag.Parse()
-
-	c.stripe.secret = os.Getenv("STRIPE_SECRET")
-	c.stripe.key = os.Getenv("STRIPE_KEY")
-
-	infoLog := log.New(os.Stdout, "[INFO]\t", log.Ldate|log.Ltime)
-	errorLog := log.New(os.Stdout, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile)
-
-	app := &app{
-		config:   c,
-		infoLog:  infoLog,
-		errorLog: errorLog,
-		version:  version,
-	}
-
-	err := app.serve()
+	err := s.ListenAndServe()
 	if err != nil {
-		app.errorLog.Println("unable to start server", err)
+		app.ErrorLog.Println("unable to start server", err)
 		os.Exit(1)
 	}
 }
