@@ -1,4 +1,4 @@
-package main
+package render
 
 import (
 	"embed"
@@ -6,27 +6,9 @@ import (
 	"html/template"
 	"net/http"
 	"strings"
+
+	"github.com/mcsymiv/go-stripe/internal/web/config"
 )
-
-// templateData holds default data structures
-// that can be passed to template pages
-type templateData struct {
-	StringMap       map[string]string
-	IntMap          map[string]int
-	FloatMap        map[string]float32
-	Data            map[string]interface{}
-	CRSFToken       string
-	Flash           string
-	Warning         string
-	Error           string
-	IsAuthenticated int
-	Api             string
-	CSSVersion      string
-}
-
-// functions holds custom template functions
-// that can be passed to template pages
-var functions = template.FuncMap{}
 
 // Go comment directive
 // embeds template directory to binaries
@@ -45,13 +27,39 @@ var tempDirectory string = "templates"
 // may be changed on require
 var tempExt = "tmpl"
 
+// templatedata holds default data structures
+// that can be passed to template pages
+type TemplateData struct {
+	StringMap       map[string]string
+	IntMap          map[string]int
+	FloatMap        map[string]float32
+	Data            map[string]interface{}
+	CRSFToken       string
+	Flash           string
+	Warning         string
+	Error           string
+	IsAuthenticated int
+	Api             string
+	CSSVersion      string
+}
+
+// functions holds custom template functions
+// that can be passed to template pages
+var functions = template.FuncMap{}
+
+var app *config.Application
+
+func New(a *config.Application) {
+	app = a
+}
+
 // add DefaultTemplateData populates templateData struct
 // with default data structures and/or values in tempalate pages
-func (a *app) addDefaultTemplateData(td *templateData, r *http.Request) *templateData {
+func AddDefaultTemplateData(td *TemplateData, r *http.Request) *TemplateData {
 	return td
 }
 
-func (a *app) renderTemplate(w http.ResponseWriter, r *http.Request, page string, td *templateData, partials ...string) error {
+func Template(w http.ResponseWriter, r *http.Request, page string, td *TemplateData, partials ...string) error {
 	var t *template.Template
 	var err error
 
@@ -62,12 +70,12 @@ func (a *app) renderTemplate(w http.ResponseWriter, r *http.Request, page string
 	// in cached templateCache map
 	// if no template is cached
 	// renders new template
-	_, cached := a.templageCache[toRender]
+	_, cached := app.TemplageCache[toRender]
 	if !cached {
-		a.infoLog.Println(fmt.Sprintf("parsing %s template", toRender))
-		t, err = a.parseTemplate(toRender, page, partials)
+		app.InfoLog.Println(fmt.Sprintf("parsing %s template", toRender))
+		t, err = parseTemplate(toRender, page, partials)
 		if err != nil {
-			a.errorLog.Println("unable to parse template")
+			app.ErrorLog.Println("unable to parse template")
 
 			return err
 		}
@@ -75,21 +83,21 @@ func (a *app) renderTemplate(w http.ResponseWriter, r *http.Request, page string
 
 	// Gets template from application config cache
 	// if page has already been parsed and created
-	t = a.templageCache[toRender]
+	t = app.TemplageCache[toRender]
 
 	// Add default template data if none was provided
 	// to the page template
 	if td == nil {
-		td = &templateData{}
+		td = &TemplateData{}
 	}
 
 	// Add default template data to provided in render
-	td = a.addDefaultTemplateData(td, r)
+	td = AddDefaultTemplateData(td, r)
 
 	// Execute template
 	err = t.Execute(w, td)
 	if err != nil {
-		a.errorLog.Println("unable to execute template")
+		app.ErrorLog.Println("unable to execute template")
 
 		return err
 	}
@@ -99,7 +107,7 @@ func (a *app) renderTemplate(w http.ResponseWriter, r *http.Request, page string
 
 // parseTemplate builds pages from template partials
 // (base, defined pages, layouts)
-func (a *app) parseTemplate(tmplToTender, page string, partials []string) (*template.Template, error) {
+func parseTemplate(tmplToTender, page string, partials []string) (*template.Template, error) {
 	var t *template.Template
 	var err error
 
@@ -120,13 +128,13 @@ func (a *app) parseTemplate(tmplToTender, page string, partials []string) (*temp
 	)
 
 	if err != nil {
-		a.errorLog.Println("unable to create new template", err)
+		app.ErrorLog.Println("unable to create new template", err)
 
 		return nil, err
 	}
 
 	// Puts parsed template to application config cache
-	a.templageCache[tmplToTender] = t
+	app.TemplageCache[tmplToTender] = t
 
 	return t, nil
 }
