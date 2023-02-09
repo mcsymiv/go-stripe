@@ -38,7 +38,7 @@ type Transaction struct {
 
 // CreatePaymentIntent performs charge logic
 // may return error code message from Stripe API
-func (c *Card) CreatePaymentIntent(currency string, amount int) (*stripe.PaymentIntent, string, error) {
+func (c *Card) Charge(currency string, amount int) (*stripe.PaymentIntent, string, error) {
 	// msg holds error code if any
 	// specified in stripe api
 	// https://stripe.com/docs/error-codes
