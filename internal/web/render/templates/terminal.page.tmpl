@@ -70,12 +70,13 @@
 
                     <!-- car number input will build by stripe -->
                     <div class="mt-3">
-                            <label class="card-element form-label"
-                               for="card_element">Credit Card
-                        </label>
+                            <label class="card-element form-label" for="card_element">
+                                Credit Card
+                            </label>
 
                         <div id="card_element"
-                             class="form-control"></div>
+                             class="form-control">
+                        </div>
 
                         <div class="alert-danger text-center" id="card-errors" role="alert"></div>
                         <div class="alert-success text-center" id="card-success" role="alert"></div>
@@ -158,6 +159,28 @@
                 amount: amountToCharge,
                 currency: "usd",
             };
+
+            const reqOpts = {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            };
+
+            fetch("http://localhost:8083/api/payment-intent", reqOpts)
+                .then(res => res.text())
+                .then(res => {
+                    let data;
+
+                    try {
+                        data = JSON.parse(res);
+                        console.log(data);
+                    } catch (err) {
+                        console.log(err);
+                    }
+                });
         }
 
         (function() {
