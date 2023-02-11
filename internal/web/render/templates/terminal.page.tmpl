@@ -17,9 +17,9 @@
                     Terminal
                 </h1>
 
-				<div class="alert alert-danger text-center d-none"
-					 id="card_messages">
-				</div>
+                <div class="alert alert-danger text-center d-none"
+                         id="card_messages">
+                </div>
 
                 <form action="/payment-succeeded"
                       method="post"
@@ -88,15 +88,15 @@
                        id="pay_button">Charge Card
                     </a>
 
-					<div id="processing_payment"
-						 class="text-center d-none">
-							<div class="spinner-border text-primary"
-								 role="status">
-									<span class="visually-hidden">
-											Loading...
-									</span>
-							</div>
-					</div>
+                    <div id="processing_payment"
+                        class="text-center d-none">
+                        <div class="spinner-border text-primary"
+                            role="status">
+                            <span class="visually-hidden">
+                                Loading...
+                            </span>
+                        </div>
+                    </div>
 
                     <input type="hidden"
                            name="payment_intent"
@@ -131,64 +131,62 @@
         let card;
         let stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
 
-		const cardMessages = document.getElementById("card_messages");
-		const payButton = document.getElementById("pay_button");
-		const processingMessage = document.getElementById("processing_payment");
+        const cardMessages = document.getElementById("card_messages");
+        const payButton = document.getElementById("pay_button");
+        const processingMessage = document.getElementById("processing_payment");
 
-		function hidePayButton() {
-				payButton.classList.add("d-none");
-				processingMessage.classList.remove("d-none");
-		}
+        function hidePayButton() {
+            payButton.classList.add("d-none");
+            processingMessage.classList.remove("d-none");
+        }
 
         function validate() {
-				let form = document.getElementById("charge_form");
-				if (form.checkValidity() === false) {
-						this.event.preventDefault();
-						this.event.stopPropagation();
-						form.classList.add("was-validated");
-						return;
-				}
+            let form = document.getElementById("charge_form");
+            if (form.checkValidity() === false) {
+                this.event.preventDefault();
+                this.event.stopPropagation();
+                form.classList.add("was-validated");
+                return;
+            }
 
-				form.classList.add("was-validated");
-				hidePayButton();
+            form.classList.add("was-validated");
+            hidePayButton();
 
-                let amountToCharge = String(parseFloat(document.getElementById("amount").value) * 100);
+            let amountToCharge = String(parseFloat(document.getElementById("amount").value) * 100);
 
-                let payload = {
-                        amount: amountToCharge,
-                        currency: "usd",
-                };
-
-
+            let payload = {
+                amount: amountToCharge,
+                currency: "usd",
+            };
         }
 
         (function() {
-                    console.log("loaded stripe");
-                    const elements = stripe.elements();
-                    const style = {
-                                base: {
-                                            fontSize: "16px",
-                                            lineHeight: "24px",
-                                }
-                    };
+            console.log("loaded stripe");
+            const elements = stripe.elements();
+            const style = {
+                base: {
+                    fontSize: "16px",
+                    lineHeight: "24px",
+                }
+            };
 
-                    card = elements.create("card", {
-                                style: style,
-                                hidePostalCode: true,
-                    });
+            card = elements.create("card", {
+                style: style,
+                hidePostalCode: true,
+            });
 
-                    card.mount("#card_element");
+            card.mount("#card_element");
 
-                    card.addEventListener("change", function(e) {
-                                var err = document.getElementById("card-errors");
-                                if (e.error) {
-                                            err.classList.remove("d-none");
-                                            err.textContent = e.error.message;
-                                } else {
-                                            err.classList.add("d-none");
-                                            err.textContent = "";
-                                }
-                    });
+            card.addEventListener("change", function(e) {
+                var err = document.getElementById("card-errors");
+                if (e.error) {
+                    err.classList.remove("d-none");
+                    err.textContent = e.error.message;
+                } else {
+                    err.classList.add("d-none");
+                    err.textContent = "";
+                }
+            });
         })();
     </script>
 {{ end }}
