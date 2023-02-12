@@ -17,9 +17,9 @@
                     Terminal
                 </h1>
 
-				<div class="alert alert-danger text-center d-none"
-					 id="card_messages">
-				</div>
+                <div class="alert alert-danger text-center d-none"
+                         id="card_messages">
+                </div>
 
                 <form action="/payment-succeeded"
                       method="post"
@@ -70,12 +70,13 @@
 
                     <!-- car number input will build by stripe -->
                     <div class="mt-3">
-                            <label class="card-element form-label"
-                               for="card_element">Credit Card
-                        </label>
+                            <label class="card-element form-label" for="card_element">
+                                Credit Card
+                            </label>
 
                         <div id="card_element"
-                             class="form-control"></div>
+                             class="form-control">
+                        </div>
 
                         <div class="alert-danger text-center" id="card-errors" role="alert"></div>
                         <div class="alert-success text-center" id="card-success" role="alert"></div>
@@ -88,15 +89,31 @@
                        id="pay_button">Charge Card
                     </a>
 
-					<div id="proccesing_payment"
-						 class="text-center d-none">
-							<div class="spinner-border text-primary"
-								 role="status">
-									<span class="visually-hidden">
-											Loading...
-									</span>
-							</div>
-					</div>
+                    <div id="processing_payment"
+                        class="text-center d-none">
+                        <div class="spinner-border text-primary"
+                            role="status">
+                            <span class="visually-hidden">
+                                Loading...
+                            </span>
+                        </div>
+                    </div>
+
+                    <input type="hidden"
+                           name="payment_intent"
+                           id="payment_intent">
+
+                    <input type="hidden"
+                           name="payment_method"
+                           id="payment_method">
+
+                    <input type="hidden"
+                           name="payment_amount"
+                           id="payment_amount">
+
+                    <input type="hidden"
+                           name="payment_currency"
+                           id="payment_currency">
 
                 </form>
 
@@ -115,54 +132,146 @@
         let card;
         let stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
 
-		const cardMessages = document.getElementById("card_messages");
-		const payButton = document.getElementById("pay_button");
-		const proccesingMessage = document.getElementById("proccessing_payment");
+        const cardMessages = document.getElementById("card_messages");
+        const payButton = document.getElementById("pay_button");
+        const processingMessage = document.getElementById("processing_payment");
 
-		function hidePayButton() {
-				payButton.classList.add("d-none");
-				proccessingMessage.classList.remove("d-none");
-		}
+        function hidePayButton() {
+            payButton.classList.add("d-none");
+            processingMessage.classList.remove("d-none");
+        }
+
+        function showPayButton() {
+            payButton.classList.remove("d-none");
+            processingMessage.classList.add("d-none");
+        }
+
+        function showCardError(msg) {
+            cardMessages.classList.add("alert-danger");
+            cardMessages.classList.remove("alert-success");
+            cardMessages.classList.remove("d-none");
+            cardMessages.innerText = msg;
+        }
+
+        function showCardMessage(msg) {
+            cardMessages.classList.add("alert-success");
+            cardMessages.classList.remove("alert-danger");
+            cardMessages.classList.remove("d-none");
+            cardMessages.innerText = msg;
+        }
+
 
         function validate() {
-				let form = document.getElementById("charge_form");
-				if (form.checkValidity()) {
-						this.event.preventDefault();
-						this.event.stopPropagation();
-						form.classList.add("was-validated");
-						return
-				}
+            let form = document.getElementById("charge_form");
+            if (form.checkValidity() === false) {
+                this.event.preventDefault();
+                this.event.stopPropagation();
+                form.classList.add("was-validated");
+                return;
+            }
 
-				form.classList.add("was-validated");
-				hidePayButton();
+            form.classList.add("was-validated");
+            hidePayButton();
+
+            let amountToCharge = String(parseFloat(document.getElementById("amount").value) * 100);
+
+            let payload = {
+                amount: amountToCharge,
+                currency: "usd",
+            };
+
+            const reqOpts = {
+                method: "post",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            };
+
+            console.log("fetch from /api/payment-intent");
+            fetch("http://192.168.0.109:8083/api/payment-intent", reqOpts)
+                .then(res => {
+                    console.log("responce from back");
+                    console.log(res);
+                    return res.text();
+                })
+                .then(res => {
+                    let data;
+
+                    console.log(res);
+
+                    try {
+                        data = JSON.parse(res);
+                        stripe.confirmCardPayment(data.client_secret, {
+                            payment_method: {
+                                card: card,
+                                billing_details: {
+                                    name: document.getElementById("holder_name").value,
+                                }
+                            }
+                        })
+                        .then((res) => {
+                            if (res.error) {
+                                console.log("error from stripe");
+                                console.log(res.error);
+                                showCardError(res.error.message);
+                                showPayButton();
+
+                            } else if (res.paymentIntent) {
+                                console.log("payment intent went through");
+
+                                if (res.paymentIntent.status === "succeeded") {
+                                    console.log("card was charged");
+                                    document.getElementById("payment_method").value = res.paymentIntent.payment_method_types[0];
+                                    document.getElementById("payment_intent").value = res.paymentIntent.id;
+                                    document.getElementById("payment_amount").value = res.paymentIntent.amount;
+                                    document.getElementById("payment_currency").value = res.paymentIntent.currency;
+
+                                    // hide spinner
+                                    processingMessage.classList.add("d-none");
+                                    showCardMessage("Success");
+                                    // submit form;
+                                }
+                            }
+                        });
+                    } catch (err) {
+                        console.log("unable to fetch data");
+                        console.log(err);
+
+                        showCardError("invalid res from payment gateway");
+                        showPayButton();
+                    }
+                });
         }
 
         (function() {
-                    const elements = stripe.elements();
-                    const style = {
-                                base: {
-                                            fontSize: "16px",
-                                            lineHight: "24px",
-                                }
-                    };
+            console.log("loaded stripe");
+            const elements = stripe.elements();
+            const style = {
+                base: {
+                    fontSize: "16px",
+                    lineHeight: "24px",
+                }
+            };
 
-                    card = elements.create("card", {
-                                style: style,
-                                hidePostalCode: true,
-                    });
+            card = elements.create("card", {
+                style: style,
+                hidePostalCode: true,
+            });
 
-                    card.mount("#card_element");
+            card.mount("#card_element");
 
-                    card.addEventListener("change", function(e) {
-                                var err = document.getElementById("card-errors");
-                                if (e.error) {
-                                            err.classList.remove("d-none");
-                                            err.textContent = e.error.message;
-                                } else {
-                                            err.classList.add("d-none");
-                                            err.textContent = "";
-                                }
-                    });
+            card.addEventListener("change", function(e) {
+                var err = document.getElementById("card-errors");
+                if (e.error) {
+                    err.classList.remove("d-none");
+                    err.textContent = e.error.message;
+                } else {
+                    err.classList.add("d-none");
+                    err.textContent = "";
+                }
+            });
         })();
     </script>
 {{ end }}

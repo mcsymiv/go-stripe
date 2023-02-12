@@ -3,8 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/mcsymiv/go-stripe/internal/api/config"
+	"github.com/mcsymiv/go-stripe/internal/card"
 )
 
 var Repo *Repository
@@ -32,19 +34,61 @@ type stripePayload struct {
 // BE response to FE client
 type responce struct {
 	Ok      bool   `json:"ok"`
-	Message string `json:"message"`
-	Content string `json:"content"`
-	Id      string `json:"id"`
+	Message string `json:"message,omitempty"`
+	Content string `json:"content,omitempty"`
+	Id      string `json:"id,omitempty"`
 }
 
-func (repo *Repository) GetPaymentIntent(w http.ResponseWriter, r *http.Request) {
-	jres := responce{
-		Ok: true,
+func (repo *Repository) PaymentIntent(w http.ResponseWriter, r *http.Request) {
+	var payload stripePayload
+
+	/// read and parse request body
+	err := json.NewDecoder(r.Body).Decode(&payload)
+	if err != nil {
+		repo.App.ErrorLog.Println("unable to parse request body", err)
+
+		return
 	}
 
-	jout, err := json.MarshalIndent(jres, "", "\t")
+	amount, err := strconv.Atoi(payload.Amount)
 	if err != nil {
-		repo.App.ErrorLog.Println("unable to marshall json", err)
+		repo.App.ErrorLog.Println("unable to convert payload amount", err)
+
+		return
+	}
+
+	c := card.Card{
+		Secret:   repo.App.Config.Stripe.Secret,
+		Key:      repo.App.Config.Stripe.Key,
+		Currency: payload.Currency,
+	}
+
+	pi, msg, err := c.Charge(payload.Currency, amount)
+	if err != nil {
+		repo.App.ErrorLog.Println("unable to charge card", msg, err)
+
+		eres := responce{
+			Ok:      false,
+			Message: msg,
+			Content: "from card charge error",
+		}
+
+		erout, err := json.MarshalIndent(eres, "", "\t")
+		if err != nil {
+			repo.App.ErrorLog.Println("unable to marshall error response", err)
+
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(erout)
+
+		return
+	}
+
+	jout, err := json.MarshalIndent(pi, "", "\t")
+	if err != nil {
+		repo.App.ErrorLog.Println("unable to marshall payment intent", err)
 
 		return
 	}

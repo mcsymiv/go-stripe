@@ -46,7 +46,7 @@ func main() {
 		Handler:           routes(app),
 	}
 
-	app.InfoLog.Println("starting BE server in %s mode, on port: %d", c.Env, c.Port)
+	app.InfoLog.Printf("starting BE server in %s mode, on port: %d", c.Env, c.Port)
 
 	err := s.ListenAndServe()
 	if err != nil {

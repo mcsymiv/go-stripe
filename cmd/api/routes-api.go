@@ -23,7 +23,7 @@ func routes(a *config.Application) http.Handler {
 		MaxAge: 300,
 	}))
 
-	mux.Get("/api/payment-intent", handlers.Repo.GetPaymentIntent)
+	mux.Post("/api/payment-intent", handlers.Repo.PaymentIntent)
 
 	return mux
 }
