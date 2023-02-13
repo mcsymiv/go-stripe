@@ -15,5 +15,6 @@ import (
 func routes(a *config.Application) http.Handler {
 	var mux *chi.Mux = chi.NewMux()
 	mux.Get("/virtual-terminal", handlers.Repo.VirtualTerminal)
+	mux.Post("/payment-succeeded", handlers.Repo.PaymentSucceeded)
 	return mux
 }
