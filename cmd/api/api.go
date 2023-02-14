@@ -10,6 +10,7 @@ import (
 
 	"github.com/mcsymiv/go-stripe/internal/api/config"
 	"github.com/mcsymiv/go-stripe/internal/api/handlers"
+	"github.com/mcsymiv/go-stripe/internal/driver"
 )
 
 const version = "1.0.0"
@@ -21,6 +22,7 @@ func main() {
 
 	flag.IntVar(&c.Port, "port", 8083, "Server API port")
 	flag.StringVar(&c.Env, "env", "dev", "Application environment [ dev | prod | maintenance ]")
+	flag.StringVar(&c.Db.Dsn, "dsn", "mcs:password@tcp(localhost:3306)/db?parseTime=true&tls=false", "DSN")
 
 	flag.Parse()
 
@@ -33,6 +35,14 @@ func main() {
 		ErrorLog: log.New(os.Stdout, "[ERROR]\t", log.Ldate|log.Ltime|log.Lshortfile),
 		Version:  version,
 	}
+
+	conn, err := driver.OpenDB(c.Db.Dsn)
+	if err != nil {
+		app.ErrorLog.Printf("unable to get connection pool. Error: %v", err)
+		app.ErrorLog.Fatal("connection to DB failed", err)
+	}
+
+	defer conn.Close()
 
 	repository := handlers.NewRepository(app)
 	handlers.NewHandlers(repository)
@@ -48,7 +58,7 @@ func main() {
 
 	app.InfoLog.Printf("starting BE server in %s mode, on port: %d", c.Env, c.Port)
 
-	err := s.ListenAndServe()
+	err = s.ListenAndServe()
 	if err != nil {
 		app.ErrorLog.Println("unable to start server", err)
 		os.Exit(1)

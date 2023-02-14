@@ -6,7 +6,7 @@ type Config struct {
 	Port int
 	Env  string
 	Db   struct {
-		dsn string
+		Dsn string
 	}
 	Stripe struct {
 		Key    string
