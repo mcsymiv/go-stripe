@@ -10,7 +10,7 @@ type Config struct {
 	Env  string
 	Api  string
 	Db   struct {
-		dsn string
+		Dsn string
 	}
 	Stripe struct {
 		Key    string

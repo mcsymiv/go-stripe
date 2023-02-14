@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mcsymiv/go-stripe/internal/driver"
 	"github.com/mcsymiv/go-stripe/internal/web/config"
 	"github.com/mcsymiv/go-stripe/internal/web/handlers"
 	"github.com/mcsymiv/go-stripe/internal/web/render"
@@ -24,6 +25,7 @@ func main() {
 	flag.IntVar(&c.Port, "port", 8082, "Server port")
 	flag.StringVar(&c.Env, "env", "dev", "Application environment [ dev | prod ]")
 	flag.StringVar(&c.Api, "api", "http://192.168.0.109:8083", "URL to api")
+	flag.StringVar(&c.Db.Dsn, "dsn", "mcs:password@tcp(localhost:3306)/db?parseTime=true&tls=false", "DSN")
 
 	flag.Parse()
 
@@ -37,6 +39,14 @@ func main() {
 		TemplageCache: make(map[string]*template.Template),
 		Version:       version,
 	}
+
+	conn, err := driver.OpenDB(c.Db.Dsn)
+	if err != nil {
+		app.ErrorLog.Printf("unable to get connection pool. Error: %v", err)
+		app.ErrorLog.Fatal("connection to DB failed", err)
+	}
+
+	defer conn.Close()
 
 	r := handlers.NewRepository(app)
 	handlers.New(r)
@@ -53,7 +63,7 @@ func main() {
 
 	app.InfoLog.Printf("starting HTTP server in %s mode, on port: %d", c.Env, c.Port)
 
-	err := s.ListenAndServe()
+	err = s.ListenAndServe()
 	if err != nil {
 		app.ErrorLog.Println("unable to start server", err)
 		os.Exit(1)
