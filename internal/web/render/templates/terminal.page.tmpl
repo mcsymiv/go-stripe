@@ -130,7 +130,8 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         let card;
-        let stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
+        // let stripe = Stripe("pk_test_51MUo7XLIB9oOE4eBF8Cz7QKu0mOgAFLCp5B5V7MwZKA7oNcK0PcmYrDmcpxe9GeDQ6xac4OFmgZmWVUn5nD5WHzi00QiToW769");
+        let stripe = Stripe({{ index .StringMap "pb_test" }})
 
         const cardMessages = document.getElementById("card_messages");
         const payButton = document.getElementById("pay_button");
@@ -190,7 +191,7 @@
             };
 
             console.log("fetch from /api/payment-intent");
-            fetch("http://192.168.0.109:8083/api/payment-intent", reqOpts)
+            fetch("{{ .Api }}/api/payment-intent", reqOpts)
                 .then(res => {
                     console.log("responce from back");
                     console.log(res);

@@ -23,7 +23,7 @@ func main() {
 
 	flag.IntVar(&c.Port, "port", 8082, "Server port")
 	flag.StringVar(&c.Env, "env", "dev", "Application environment [ dev | prod ]")
-	flag.StringVar(&c.Api, "api", "http://localhost:8083", "URL to api")
+	flag.StringVar(&c.Api, "api", "http://192.168.0.109:8083", "URL to api")
 
 	flag.Parse()
 
@@ -51,7 +51,7 @@ func main() {
 		Handler:           routes(app),
 	}
 
-	app.InfoLog.Println("starting HTTP server in %s mode, on port: %d", c.Env, c.Port)
+	app.InfoLog.Printf("starting HTTP server in %s mode, on port: %d", c.Env, c.Port)
 
 	err := s.ListenAndServe()
 	if err != nil {

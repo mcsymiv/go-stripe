@@ -24,8 +24,14 @@ func New(r *Repository) {
 }
 
 func (repo *Repository) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
-	repo.App.InfoLog.Println("hit virtual terminal")
-	if err := render.Template(w, r, "terminal", nil); err != nil {
+	stringMap := make(map[string]string)
+	stringMap["pb_test"] = repo.App.Config.Stripe.Key
+
+	err := render.Template(w, r, "terminal", &render.TemplateData{
+		StringMap: stringMap,
+	})
+
+	if err != nil {
 		repo.App.ErrorLog.Println("unable to render terminal page template", err)
 	}
 }

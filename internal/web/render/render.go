@@ -56,6 +56,7 @@ func New(a *config.Application) {
 // add DefaultTemplateData populates templateData struct
 // with default data structures and/or values in tempalate pages
 func AddDefaultTemplateData(td *TemplateData, r *http.Request) *TemplateData {
+	td.Api = app.Config.Api
 	return td
 }
 
