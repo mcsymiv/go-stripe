@@ -1,0 +1,40 @@
+{{ template "base" . }}
+
+{{ define "title" }}
+	Wicker
+{{ end }}
+
+{{ define "content" }}
+
+	<div class="row mt-5">
+		
+		<div class="col-2"></div>
+
+		<div class="col-8">
+			<div class="card">
+
+				<img src="/static/images/{{ index .StringMap "itemName" }}.png" 
+					class="card-img-top" 
+					alt="{{ index .StringMap "itemName" }}">
+
+				<div class="card-body">
+					<h5 class="card-title">
+						{{ index .StringMap "itemName" }}
+					</h5>
+
+					<p class="card-text">
+						This is a fine, man-made {{ index .StringMap "itemName" }}.
+					</p>
+
+					<a href="#" class="btn btn-primary">
+							Buy {{ index .StringMap "itemName" }}
+					</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-2"></div>
+
+	</div>
+{{ end }}
+
