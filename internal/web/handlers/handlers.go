@@ -71,3 +71,18 @@ func (repo *Repository) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		return
 	}
 }
+
+func (repo *Repository) ChargeItem(w http.ResponseWriter, r *http.Request) {
+	repo.App.InfoLog.Println("hit charge item page")
+
+	stringMap := make(map[string]string)
+	stringMap["itemName"] = "wicker"
+
+	err := render.Template(w, r, "wicker", &render.TemplateData{
+		StringMap: stringMap,
+	})
+
+	if err != nil {
+		repo.App.ErrorLog.Printf("unable to render wicker page. Error: %v", err)
+	}
+}
