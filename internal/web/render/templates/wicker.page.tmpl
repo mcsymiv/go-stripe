@@ -13,9 +13,11 @@
 		<div class="col-8">
 			<div class="card">
 
-				<img src="/static/images/{{ index .StringMap "itemName" }}.png" 
-					class="card-img-top" 
-					alt="{{ index .StringMap "itemName" }}">
+				<div class="text-center w-50">
+					<img src="/static/images/{{ index .StringMap "itemName" }}.png" 
+						class="card-img-top" 
+						alt="{{ index .StringMap "itemName" }}">
+				</div>
 
 				<div class="card-body">
 					<h5 class="card-title">
