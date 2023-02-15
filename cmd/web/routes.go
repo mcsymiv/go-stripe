@@ -16,5 +16,9 @@ func routes(a *config.Application) http.Handler {
 	var mux *chi.Mux = chi.NewMux()
 	mux.Get("/virtual-terminal", handlers.Repo.VirtualTerminal)
 	mux.Post("/payment-succeeded", handlers.Repo.PaymentSucceeded)
+
+	fs := http.FileServer(http.Dir("/static/*"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fs))
+
 	return mux
 }
