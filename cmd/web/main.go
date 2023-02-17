@@ -22,6 +22,7 @@ var app config.Application
 func main() {
 	var c config.Config
 
+	// Passed flags to the application
 	flag.IntVar(&c.Port, "port", 8082, "Server port")
 	flag.StringVar(&c.Env, "env", "dev", "Application environment [ dev | prod ]")
 	flag.StringVar(&c.Api, "api", "http://192.168.0.109:8083", "URL to api")
@@ -29,6 +30,9 @@ func main() {
 
 	flag.Parse()
 
+	// Stripe secret and key
+	// pb_ publishable key
+	// sk_ secter key is used for Stripe API authentication
 	c.Stripe.Secret = os.Getenv("STRIPE_SECRET")
 	c.Stripe.Key = os.Getenv("STRIPE_KEY")
 
@@ -40,6 +44,7 @@ func main() {
 		Version:       version,
 	}
 
+	// Returns DB connection pool
 	conn, err := driver.OpenDB(c.Db.Dsn)
 	if err != nil {
 		app.ErrorLog.Printf("unable to get connection pool. Error: %v", err)

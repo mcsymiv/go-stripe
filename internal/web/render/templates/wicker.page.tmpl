@@ -4,6 +4,15 @@
 	Wicker
 {{ end }}
 
+{{ define "css" }}
+	<style>
+		.center-img {
+			display: flex;
+			justify-content: center;
+		}
+	</style>
+{{ end }}
+
 {{ define "content" }}
 
 	<div class="row mt-5">
@@ -13,9 +22,9 @@
 		<div class="col-8">
 			<div class="card">
 
-				<div class="text-center w-50">
+				<div class="center-img">
 					<img src="/static/images/{{ index .StringMap "itemName" }}.png" 
-						class="card-img-top" 
+						class="card-img-top w-50" 
 						alt="{{ index .StringMap "itemName" }}">
 				</div>
 
