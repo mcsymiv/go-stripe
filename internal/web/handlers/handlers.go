@@ -29,7 +29,7 @@ func (repo *Repository) VirtualTerminal(w http.ResponseWriter, r *http.Request) 
 
 	err := render.Template(w, r, "terminal", &render.TemplateData{
 		StringMap: stringMap,
-	})
+	}, "form-js")
 
 	if err != nil {
 		repo.App.ErrorLog.Println("unable to render terminal page template", err)
@@ -80,7 +80,7 @@ func (repo *Repository) ChargeItem(w http.ResponseWriter, r *http.Request) {
 
 	err := render.Template(w, r, "wicker", &render.TemplateData{
 		StringMap: stringMap,
-	})
+	}, "form-js")
 
 	if err != nil {
 		repo.App.ErrorLog.Printf("unable to render wicker page. Error: %v", err)

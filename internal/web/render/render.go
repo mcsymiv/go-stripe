@@ -120,6 +120,11 @@ func parseTemplate(tmplToTender, page string, partials []string) (*template.Temp
 		}
 
 		t, err = t.ParseFS(templateFileSystem, strings.Join(partials, ","))
+		if err != nil {
+			app.ErrorLog.Println("unable to parse partials", err)
+
+			return nil, err
+		}
 	}
 
 	t, err = t.ParseFS(
