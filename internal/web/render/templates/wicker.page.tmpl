@@ -34,7 +34,7 @@
 					</h5>
 
 					<p class="card-text">
-						This is a fine, man-made {{ index .StringMap "itemName" }}.
+						This is a fine, handmade {{ index .StringMap "itemName" }}.
 					</p>
 
 					<form action="/payment-succeeded"
@@ -150,6 +150,7 @@
 {{ end }}
 
 {{ define "js" }}
+	{{ template "form-js" . }}
 		<script>
 			
 			const form = document.getElementById("charge_form");
