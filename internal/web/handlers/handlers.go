@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/mcsymiv/go-stripe/internal/models"
 	"github.com/mcsymiv/go-stripe/internal/web/config"
 	"github.com/mcsymiv/go-stripe/internal/web/render"
 )
@@ -75,11 +77,21 @@ func (repo *Repository) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 func (repo *Repository) ChargeItem(w http.ResponseWriter, r *http.Request) {
 	repo.App.InfoLog.Println("hit charge item page")
 
-	stringMap := make(map[string]string)
-	stringMap["itemName"] = "wicker"
+	wicker := models.Wicker{
+		Id:          1,
+		Name:        "fine basket wicker",
+		ImageName:   "wicker",
+		Price:       1200,
+		Description: "handmade fine wicker basket",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	data := make(map[string]interface{})
+	data["wicker"] = wicker
 
 	err := render.Template(w, r, "wicker", &render.TemplateData{
-		StringMap: stringMap,
+		Data: data,
 	}, "form-js")
 
 	if err != nil {

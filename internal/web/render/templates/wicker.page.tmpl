@@ -22,19 +22,21 @@
 		<div class="col-8">
 			<div class="card">
 
+				{{ $wicker := index .Data "wicker" }}
+
 				<div class="center-img">
-					<img src="/static/images/{{ index .StringMap "itemName" }}.png" 
+					<img src="/static/images/{{ $wicker.ImageName }}.png" 
 						class="card-img-top w-50" 
-						alt="{{ index .StringMap "itemName" }}">
+						alt="{{ $wicker.Name }}">
 				</div>
 
 				<div class="card-body">
 					<h5 class="card-title">
-						{{ index .StringMap "itemName" }}
+						{{ $wicker.Name }}
 					</h5>
 
 					<p class="card-text">
-						This is a fine, handmade {{ index .StringMap "itemName" }}.
+						This is a fine, handmade {{ $wicker.Name }}.
 					</p>
 
 					<form action="/payment-succeeded"
@@ -137,7 +139,7 @@
 					   onclick="showBuyForm()"
 					   id="show_buy_form_button"
 					   class="btn btn-primary">
-							Buy {{ index .StringMap "itemName" }}
+							Buy {{ $wicker.Name }}
 					</a>
 
 				</div>
